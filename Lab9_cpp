@@ -1,0 +1,84 @@
+#include <iostream>
+#include <cstring>
+#include <algorithm>
+using namespace std;
+struct BigNumber {
+    static const int MAX_DIGITS= 1000;
+    int digits[MAX_DIGITS];
+    int size;
+    BigNumber(const string& number = "0") {
+        size = number.length();
+        fill(digits, digits + MAX_DIGITS, 0);
+        for (int i= 0; i < size; ++i) {
+            digits[i] = number[size - 1 - i] - '0';
+        }
+    }
+    void print() const {
+        bool leadingZero = true;
+        for (int i =size - 1; i >= 0; --i) {
+            if (digits[i] != 0) leadingZero = false;
+            if (!leadingZero) cout << digits[i];
+        }
+        if (leadingZero) cout << "0";
+    }
+    BigNumber operator+(const BigNumber& other) const {
+        BigNumber result;
+        result.size = max(size, other.size);
+        int carry= 0;
+        for (int i = 0; i < result.size; ++i) {
+            int sum = digits[i] + other.digits[i] +carry;
+            result.digits[i] =sum % 10;
+            carry =sum / 10;
+        }
+        if (carry > 0) {
+            result.digits[result.size++] = carry;
+        }
+        return result;
+    }
+    BigNumber operator-(const BigNumber& other) const {
+        BigNumber result;
+        result.size = size;
+        int borrow= 0;
+        for (int i = 0; i < size; ++i) {
+            int diff = digits[i] - other.digits[i] - borrow;
+            if (diff < 0) {
+                diff += 10;
+                borrow = 1;
+            } else {
+                borrow= 0;
+            }
+            result.digits[i] = diff;
+        }
+        while (result.size > 1 && result.digits[result.size -1] == 0) {
+            --result.size;
+        }
+        return result;
+    }
+};
+int main() {
+    string num1, num2;
+    cout << "Enter first big number: ";
+    cin >> num1;
+    cout << "Enter second big number:";
+    cin >> num2;
+    BigNumber a(num1), b(num2);
+    cout << "First number: ";
+    a.print();
+    cout << endl;
+    cout << "Second number: ";
+    b.print();
+    cout << endl;
+    BigNumber sum = a + b;
+    cout << "Sum: ";
+    sum.print();
+    cout << endl;
+    if (num1 >= num2) {
+        BigNumber diff = a - b;
+        cout << "Difference: ";
+        diff.print();
+        cout << endl;
+    } else {
+        cout << "Difference: Undefined (first number is smaller than second)" << endl;
+    }
+    return 0;
+}
